@@ -1,0 +1,67 @@
+@page "/registro"
+@inject NavigationManager NavMan
+@rendermode InteractiveServer
+@using System.Text.Json
+@inject IJSRuntime JSx
+
+<h3>Registros recibidos</h3>
+
+<div class="text-end">
+    <button class="btn btn-primary" @onclick="NuevoRegistro">Nuevo Registro</button>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Descripcion</th>
+            <th>Acciiones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var registro in registros)
+        {
+            <tr>
+                <td>@registro.Fecha</td>
+                <td>@registro.Descripcion</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@code{
+
+    List<Reporte> registros = new List<Reporte>();
+
+    private void NuevoRegistro()
+    {
+        NavMan.NavigateTo("registro/nuevo");
+    }
+
+    
+    
+    //after render first time async
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        
+        if (firstRender)
+        {
+
+            
+            
+            //get from local storage
+            var registrosJson = await JSx.InvokeAsync<string>("localStorage.getItem", "registros");
+
+            if (registrosJson != null)
+            {
+                registros = JsonSerializer.Deserialize<List<Reporte>>(registrosJson);
+                //JSx.InvokeVoidAsync("alert", registros.Count + " registros cargados");
+                StateHasChanged();
+            }
+
+        }
+    }
+    
+
+}
